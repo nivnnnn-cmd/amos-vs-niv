@@ -366,7 +366,7 @@ function updateDirY() {
 // החלונית שבצד: מבט מהצד על הכדור והשער, עם חץ שמגיע לגובה שבו הכדור יעבור בקו השער.
 // הגבהים אמיתיים ביחס לשער: אם החץ עובר מעל המשקוף, הכדור ייצא החוצה
 const hCanvas = $('hArrow');
-const smallScreen = matchMedia('(max-height: 520px), (max-width: 500px)'); // בטלפון: חלונית קטנה יותר
+const smallScreen = matchMedia('(max-height: 520px), (max-width: 820px)'); // במסך קטן או צר: חלונית קטנה יותר
 let hDrawn = '';
 function drawHeightArrow(f) {
   // הגודל נקבע כאן ולא בעיצוב, כדי שהחלונית לא תגדל בלי סוף אם העיצוב לא נטען
