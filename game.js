@@ -4,9 +4,9 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
   createCharacter, createBall, poseIdle, poseRun, poseKick, poseKeeperReady,
   poseDive, poseJumpCenter, poseCelebrate, poseSad,
-} from './characters.js?v=3';
-import { GOAL, buildPitch, buildGoal, buildStands, buildBoards, buildSky } from './stadium.js?v=3';
-import * as sfx from './audio.js?v=3';
+} from './characters.js?v=4';
+import { GOAL, buildPitch, buildGoal, buildStands, buildBoards, buildSky } from './stadium.js?v=4';
+import * as sfx from './audio.js?v=4';
 
 const KICKS = 5;
 const BALL_R = 0.62;
@@ -301,13 +301,12 @@ function setState(s) {
   $('cMeter').hidden = s !== 'curve';
   // מד הגובה נשאר גם בשלב הסיבוב, כדי שיראו איזה גובה נבחר
   $('yMeter').hidden = s !== 'dirY' && s !== 'curve';
-  // אחרי שבוחרים גובה החלונית מתכווצת, כדי שלא תסתיר את השער
-  $('yMeter').classList.toggle('mini', s === 'curve');
   if (aiming) {
     $('hint').textContent = LABELS[s][0];
     $('kickBtn').textContent = LABELS[s][1];
   }
   $('power').hidden = s !== 'power';
+  layoutPanels();
   arrow.visible = aiming || s === 'power';
   // לא מראים על השער לאן הכדור יגיע, כדי שהתוצאה תהיה הפתעה
   guide.visible = false;
@@ -791,8 +790,90 @@ function resize() {
   camera.fov = Math.max(minFov, THREE.MathUtils.radToDeg(2 * Math.atan(tanH / camera.aspect)));
   camera.updateProjectionMatrix();
 }
-addEventListener('resize', resize);
+addEventListener('resize', () => {
+  resize();
+  layoutPanels();
+});
 resize();
+
+// ---------- מקום לחלוניות של הגובה וההליכון: למעלה, מעל השער ----------
+
+// איפה דברים מופיעים על המסך, כשהמצלמה במקום הרגיל שלה (לפני הבעיטה)
+const goalCam = new THREE.PerspectiveCamera();
+const corner = new THREE.Vector3();
+function onScreen(min, max) {
+  goalCam.copy(camera);
+  goalCam.position.copy(BASE_POS);
+  goalCam.lookAt(BASE_LOOK);
+  goalCam.updateProjectionMatrix();
+  goalCam.updateMatrixWorld();
+  const box = { top: Infinity, bottom: -Infinity, left: Infinity, right: -Infinity };
+  for (const x of [min.x, max.x]) {
+    for (const y of [min.y, max.y]) {
+      for (const z of [min.z, max.z]) {
+        corner.set(x, y, z).project(goalCam);
+        const sx = ((corner.x + 1) / 2) * innerWidth;
+        const sy = ((1 - corner.y) / 2) * innerHeight;
+        box.top = Math.min(box.top, sy);
+        box.bottom = Math.max(box.bottom, sy);
+        box.left = Math.min(box.left, sx);
+        box.right = Math.max(box.right, sx);
+      }
+    }
+  }
+  return box;
+}
+const GOAL_MIN = new THREE.Vector3(-GOAL.halfW - GOAL.post, 0, -GOAL.depth);
+const GOAL_MAX = new THREE.Vector3(GOAL.halfW + GOAL.post, GOAL.h + GOAL.post, 0);
+const AMOS_MIN = new THREE.Vector3(AMOS_START.x - 1.8, 0, AMOS_START.z - 1);
+const AMOS_MAX = new THREE.Vector3(AMOS_START.x + 1.8, 6.5, AMOS_START.z + 1);
+const goalOnScreen = () => onScreen(GOAL_MIN, GOAL_MAX);
+
+// החלונית נכנסת לרווח שמעל השער. אם הרווח קטן מדי (טלפון שוכב), היא עוברת לצד ימין,
+// מימין לשער ולעמוס. אם צריך היא קטנה כדי להיכנס, כדי שלעולם לא תסתיר אותם
+function placePanel(el) {
+  if (el.hidden) return;
+  const pad = 8;
+  // הנקודה שמתחת ללוח התוצאות ולהוראה שלמעלה (רק אלה שנמצאים מעל האזור)
+  const below = (fromX) => {
+    let y = 0;
+    for (const id of ['hud', 'hint']) {
+      const r = $(id).getBoundingClientRect();
+      if ($(id).getClientRects().length && r.right > fromX) y = Math.max(y, r.bottom);
+    }
+    return y + pad;
+  };
+  const w = el.offsetWidth, h = el.offsetHeight;
+  const g = goalOnScreen();
+  const a = onScreen(AMOS_MIN, AMOS_MAX);
+  // אפשרות 1: מעל השער, באמצע
+  const topA = below(0);
+  const fitAbove = Math.min(1, (g.top - pad - topA) / h, (innerWidth - 2 * pad) / w);
+  // אפשרות 2: בצד ימין, מימין לשער ולעמוס
+  const sideLeft = Math.max(g.right, a.right) + pad;
+  const topS = below(sideLeft);
+  const fitSide = Math.min(1, (innerHeight - pad - topS) / h, (innerWidth - pad - sideLeft) / w);
+  let f, x, y;
+  if (fitAbove >= 0.7 || fitAbove >= fitSide) {
+    f = Math.max(fitAbove, 0.35); // לא קטן מדי, כדי שעדיין יהיה אפשר לראות
+    x = (innerWidth - w * f) / 2;
+    y = topA;
+  } else {
+    f = Math.max(fitSide, 0.35);
+    x = innerWidth - pad - w * f;
+    y = topS;
+  }
+  el.style.left = `${Math.round(x)}px`;
+  el.style.top = `${Math.round(y)}px`;
+  el.style.transform = `scale(${f.toFixed(3)})`;
+}
+
+function layoutPanels() {
+  // קודם מציירים את חץ הגובה, כדי שהחלונית תהיה בגודל הנכון לפני שמודדים אותה
+  if (!$('yMeter').hidden) drawHeightArrow((game.aim.y - Y_MIN) / (Y_MAX - Y_MIN));
+  placePanel($('yMeter'));
+  placePanel($('power'));
+}
 camPos.copy(BASE_POS);
 camLook.copy(BASE_LOOK);
 
@@ -978,6 +1059,7 @@ if (debugMode) {
     curve(c) { game.curve = c; },
     ball,
     arrow,
+    goalOnScreen,
     kick() { startPower(); },
     press() { pressButton(); },
     stop() { stopPower(); },

@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
 <!-- מספר הגרסה (v=) מכריח את הדפדפן להוריד קבצים חדשים אחרי כל עדכון -->
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -60,6 +60,7 @@
 
 <!-- ההליכון: קובע את חוזק הבעיטה -->
 <div id="power" hidden>
+  <div class="tap">גע במסך כדי לבעוט!</div>
   <div class="tm-wrap">
     <div id="tmView"></div>
     <div class="meter">
@@ -68,7 +69,6 @@
       <span class="lbl bottom">חלש</span>
     </div>
   </div>
-  <div class="tap">גע במסך כדי לבעוט!</div>
 </div>
 
 <!-- הודעה גדולה אחרי בעיטה -->
@@ -114,6 +114,6 @@
   </div>
 </section>
 
-<script type="module" src="game.js?v=3"></script>
+<script type="module" src="game.js?v=4"></script>
 </body>
 </html>
