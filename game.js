@@ -301,6 +301,8 @@ function setState(s) {
   $('cMeter').hidden = s !== 'curve';
   // מד הגובה נשאר גם בשלב הסיבוב, כדי שיראו איזה גובה נבחר
   $('yMeter').hidden = s !== 'dirY' && s !== 'curve';
+  // אחרי שבוחרים גובה החלונית מתכווצת, כדי שלא תסתיר את השער
+  $('yMeter').classList.toggle('mini', s === 'curve');
   if (aiming) {
     $('hint').textContent = LABELS[s][0];
     $('kickBtn').textContent = LABELS[s][1];
