@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1430">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>עמוס נגד ניב</title>
+<meta name="description" content="דו-קרב פנדלים: עמוס מנבחרת ספרד מול ניב, השוער של ברזיל">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="stage"></div>
+
+<!-- לוח תוצאות למעלה -->
+<header id="hud" hidden>
+  <div class="team spain"><span class="flag">🇪🇸</span><b>עמוס</b><span class="num" id="goals">0</span></div>
+  <div class="mid">
+    <div class="dots" id="dots"></div>
+    <div class="kickno" id="kickno">בעיטה 1 מתוך 5</div>
+  </div>
+  <div class="team brazil"><span class="num" id="stops">0</span><b>ניב</b><span class="flag">🇧🇷</span></div>
+</header>
+<button id="mute" class="round" aria-label="השתקה" hidden>🔊</button>
+
+<!-- הוראה קצרה, מדי הכיוון והגובה, וכפתור עצירה -->
+<div id="bottom" hidden>
+  <div id="hint"></div>
+  <div id="xMeter" class="hmeter">
+    <span class="lbl">⬅️</span>
+    <div class="track"><div class="mark" id="xMark"></div></div>
+    <span class="lbl">➡️</span>
+  </div>
+  <div id="cMeter" class="hmeter spin">
+    <span class="lbl">↩️</span>
+    <div class="track"><div class="mark" id="cMark"></div></div>
+    <span class="lbl">↪️</span>
+  </div>
+  <div id="yMeter" class="vmeter">
+    <!-- מבט מהצד: חץ שנוטה למעלה ולמטה לפי הגובה -->
+    <canvas id="hArrow"></canvas>
+    <div class="vcol">
+      <span class="lbl">גבוה</span>
+      <div class="track"><div class="mark" id="yMark"></div></div>
+      <span class="lbl">נמוך</span>
+    </div>
+  </div>
+  <button id="kickBtn" class="big">עצור</button>
+</div>
+
+<!-- ההליכון: קובע את חוזק הבעיטה -->
+<div id="power" hidden>
+  <div class="tm-wrap">
+    <div id="tmView"></div>
+    <div class="meter">
+      <span class="lbl top">חזק</span>
+      <div class="bar"><div class="fill" id="fill"></div><div class="mark" id="mark"></div></div>
+      <span class="lbl bottom">חלש</span>
+    </div>
+  </div>
+  <div class="tap">גע במסך כדי לבעוט!</div>
+</div>
+
+<!-- הודעה גדולה אחרי בעיטה -->
+<div id="msg"></div>
+
+<!-- מסך פתיחה -->
+<section id="start" class="overlay">
+  <div class="panel">
+    <div class="kicker">דו-קרב פנדלים</div>
+    <h1>עמוס <span>נגד</span> ניב</h1>
+    <div class="cards">
+      <div class="card spain">
+        <img id="pAmos" alt="עמוס">
+        <b>עמוס</b>
+        <small>🇪🇸 ספרד · חלוץ · 10</small>
+      </div>
+      <div class="vs">VS</div>
+      <div class="card brazil">
+        <img id="pNiv" alt="ניב">
+        <b>ניב</b>
+        <small>🇧🇷 ברזיל · שוער · 1</small>
+      </div>
+    </div>
+    <ol class="how">
+      <li><span>1</span><div>חץ זז מצד לצד: לחץ "עצור" כשהוא מכוון לאן שאתה רוצה</div></li>
+      <li><span>2</span><div>מד הגובה עולה ויורד: לחץ "עצור" בגובה שאתה רוצה</div></li>
+      <li><span>3</span><div>מד הסיבוב זז מצד לצד: לחץ "עצור" בסיבוב שאתה רוצה. סיבוב חזק מכופף את הכדור קצת הצידה</div></li>
+      <li><span>4</span><div>עמוס רץ על ההליכון. גע במסך כדי לבעוט: <em class="g">ירוק</em> = חלש, <em class="r">אדום</em> = חזק</div></li>
+    </ol>
+    <button id="play" class="big" disabled>טוען…</button>
+  </div>
+</section>
+
+<!-- מסך סיום -->
+<section id="end" class="overlay" hidden>
+  <div class="panel">
+    <div class="kicker">סוף המשחק</div>
+    <h2 id="endTitle"></h2>
+    <div class="endDots" id="endDots"></div>
+    <p id="endText"></p>
+    <p class="best" id="best"></p>
+    <button id="again" class="big">שחק שוב 🔁</button>
+  </div>
+</section>
+
+<script type="module" src="game.js"></script>
+</body>
+</html>
