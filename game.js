@@ -4,9 +4,9 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
   createCharacter, createBall, poseIdle, poseRun, poseKick, poseKeeperReady,
   poseDive, poseJumpCenter, poseCelebrate, poseSad,
-} from './characters.js';
-import { GOAL, buildPitch, buildGoal, buildStands, buildBoards, buildSky } from './stadium.js';
-import * as sfx from './audio.js';
+} from './characters.js?v=3';
+import { GOAL, buildPitch, buildGoal, buildStands, buildBoards, buildSky } from './stadium.js?v=3';
+import * as sfx from './audio.js?v=3';
 
 const KICKS = 5;
 const BALL_R = 0.62;
